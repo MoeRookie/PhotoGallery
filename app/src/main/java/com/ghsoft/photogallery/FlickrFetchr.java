@@ -7,6 +7,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class FlickrFetchr {
+    private static final String TAG = "FlickrFetchr";
+    public static final String API_KEY = "adccfea42ef1829e72843c4d3e17d6a7";
     /**
      * 从指定url获取原始数据并返回一个字节数组
      * @param urlSpec url参数
