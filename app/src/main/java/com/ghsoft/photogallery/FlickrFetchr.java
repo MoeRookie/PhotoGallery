@@ -3,6 +3,7 @@ package com.ghsoft.photogallery;
 import android.net.Uri;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FlickrFetchr {
     private static final String TAG = "FlickrFetchr";
@@ -63,7 +66,8 @@ public class FlickrFetchr {
     /**
      * 构建请求URL并获取内容
      */
-    public void fetchItems(){
+    public List<GalleryItem> fetchItems(){
+        ArrayList<GalleryItem> items = new ArrayList<>();
         try {
             String url = Uri.parse("https://api.flickr.com/services/rest/")
                     .buildUpon()
@@ -75,11 +79,36 @@ public class FlickrFetchr {
                     .build().toString();
             String jsonString = getUrlString(url);
             JSONObject jsonBody = new JSONObject(jsonString);
+            parseItems(items, jsonBody);
             Log.i(TAG, "Received JSON: " + jsonString);
         } catch (JSONException je) {
             Log.e(TAG, "Failed to parse JSON", je);
         } catch (IOException ioe) {
             Log.e(TAG, "Failed to fetch items", ioe);
+        }
+        return items;
+    }
+
+    /**
+     * 解析json,生成galleryItem集合
+     * @param items galleryItem集合
+     * @param jsonBody json
+     */
+    public void parseItems(List<GalleryItem> items,JSONObject jsonBody)
+            throws JSONException {
+        JSONObject photosJsonObject = jsonBody.getJSONObject("photos");
+        JSONArray photoJsonArray = photosJsonObject.getJSONArray("photo");
+        for (int i = 0; i < photoJsonArray.length(); i++) {
+            JSONObject photoJsonObject = photoJsonArray.getJSONObject(i);
+
+            GalleryItem item = new GalleryItem();
+            item.setId(photoJsonObject.getString("id"));
+            item.setCaption(photoJsonObject.getString("title"));
+            if (!photoJsonObject.has("url_s")) {
+                continue;
+            }
+            item.setUrl(photoJsonObject.getString("url_s"));
+            items.add(item);
         }
     }
 }
