@@ -12,12 +12,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PhotoGalleryFragment extends Fragment{
     private static final String TAG = "PhotoGalleryFragment";
 
     private RecyclerView mPhotoRecyclerView;
+
+    private List<GalleryItem> mItems = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,14 +41,26 @@ public class PhotoGalleryFragment extends Fragment{
         View view = inflater.inflate(R.layout.fragment_photo_gallery, container, false);
         mPhotoRecyclerView = view.findViewById(R.id.fragment_photo_gallery_recycler_view);
         mPhotoRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),3));
+        setupAdapter();
         return view;
     }
-    private class FetchItemTask extends AsyncTask<Void,Void,Void> {
+    private void setupAdapter(){
+        if (isAdded()) {
+            mPhotoRecyclerView.setAdapter(new PhotoAdapter(mItems));
+        }
+    }
+
+    private class FetchItemTask extends AsyncTask<Void,Void,List<GalleryItem>> {
 
         @Override
-        protected Void doInBackground(Void... voids) {
-            List<GalleryItem> items = new FlickrFetchr().fetchItems();
-            return null;
+        protected List<GalleryItem> doInBackground(Void... voids) {
+            return new FlickrFetchr().fetchItems();
+        }
+
+        @Override
+        protected void onPostExecute(List<GalleryItem> items) {
+            mItems = items;
+            setupAdapter();
         }
     }
     private class PhotoHolder extends RecyclerView.ViewHolder{
