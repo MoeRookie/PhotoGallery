@@ -96,8 +96,8 @@ public class PhotoGalleryFragment extends Fragment{
 
         @Override
         public void onBindViewHolder(@NonNull PhotoHolder photoHolder, int i) {
-            GalleryItem galleryItem = mGalleryItems.get(i);
-            photoHolder.bindGalleryItem(galleryItem);
+            Drawable placeholder = getResources().getDrawable(R.drawable.bill_up_close);
+            photoHolder.bindDrawable(placeholder);
         }
 
         @Override
