@@ -1,5 +1,6 @@
 package com.ghsoft.photogallery;
 
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -65,15 +67,15 @@ public class PhotoGalleryFragment extends Fragment{
     }
     private class PhotoHolder extends RecyclerView.ViewHolder{
 
-        private TextView mTitleTextView;
+        private ImageView mItemImageView;
 
         public PhotoHolder(@NonNull View itemView) {
             super(itemView);
-            mTitleTextView = (TextView) itemView;
+            mItemImageView = itemView.findViewById(R.id.fragment_photo_gallery_image_view);
         }
 
-        public void bindGalleryItem(GalleryItem item) {
-            mTitleTextView.setText(item.toString());
+        public void bindDrawable(Drawable drawable) {
+            mItemImageView.setImageDrawable(drawable);
         }
     }
     private class PhotoAdapter extends RecyclerView.Adapter<PhotoHolder>{
