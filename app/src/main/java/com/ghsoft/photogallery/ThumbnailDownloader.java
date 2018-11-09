@@ -1,9 +1,13 @@
 package com.ghsoft.photogallery;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Message;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -15,6 +19,35 @@ public class ThumbnailDownloader<T> extends HandlerThread {
     private ConcurrentMap<T, String> mRequestMap = new ConcurrentHashMap<>();
     public ThumbnailDownloader() {
         super(TAG);
+    }
+
+    @Override
+    protected void onLooperPrepared() {
+        mRequestHandler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == MESSAGE_DOWNLOAD) {
+                    T target = (T) msg.obj;
+                    Log.i(TAG, "Got a request for URL: " + mRequestMap.get(target));
+                    handleRequest(target);
+                }
+            }
+        };
+    }
+
+    private void handleRequest(T target) {
+        try {
+            String url = mRequestMap.get(target);
+            if (url == null) {
+                return;
+            }
+            byte[] bitmapBytes = new FlickrFetchr().getUrlBytes(url);
+            Bitmap bitmap = BitmapFactory
+                    .decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
+            Log.i(TAG, "Bitmap created");
+        } catch (IOException ioe) {
+            Log.e(TAG, "Error downloading image", ioe);
+        }
     }
 
     @Override
