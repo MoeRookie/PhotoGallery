@@ -137,4 +137,10 @@ public class PhotoGalleryFragment extends Fragment{
             return mGalleryItems.size();
         }
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mThumbnailDownloader.clearQueue();
+    }
 }
