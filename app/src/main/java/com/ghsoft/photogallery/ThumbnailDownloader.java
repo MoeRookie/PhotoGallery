@@ -46,16 +46,26 @@ public class ThumbnailDownloader<T> extends HandlerThread {
         };
     }
 
-    private void handleRequest(T target) {
+    private void handleRequest(final T target) {
         try {
-            String url = mRequestMap.get(target);
+            final String url = mRequestMap.get(target);
             if (url == null) {
                 return;
             }
             byte[] bitmapBytes = new FlickrFetchr().getUrlBytes(url);
-            Bitmap bitmap = BitmapFactory
+            final Bitmap bitmap = BitmapFactory
                     .decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
-
+            mResponseHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mRequestMap.get(target) != url ||
+                            mHasQuit) {
+                        return;
+                    }
+                    mRequestMap.remove(target);
+                    mThumbnailDownloadListener.onThumbnailDownloader(target,bitmap);
+                }
+            });
             Log.i(TAG, "Bitmap created");
         } catch (IOException ioe) {
             Log.e(TAG, "Error downloading image", ioe);
