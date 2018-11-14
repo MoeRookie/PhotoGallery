@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ public class PhotoGalleryFragment extends Fragment{
 
     private List<GalleryItem> mItems = new ArrayList<>();
     private ThumbnailDownloader<PhotoHolder> mThumbnailDownloader;
+    private LruCache<String,Bitmap> mBitmapCache;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,7 +39,9 @@ public class PhotoGalleryFragment extends Fragment{
         new FetchItemTask().execute();
 
         Handler responseHandler = new Handler();
-        mThumbnailDownloader = new ThumbnailDownloader<>(responseHandler);
+        int cacheSize = 4 * 1024 * 1024; // 4M
+        mBitmapCache = new LruCache<>(cacheSize);
+        mThumbnailDownloader = new ThumbnailDownloader<>(responseHandler,mBitmapCache);
         mThumbnailDownloader.setThumbnailDownloadListener(
                 new ThumbnailDownloader.ThumbnailDownloadListener<PhotoHolder>() {
                     @Override
